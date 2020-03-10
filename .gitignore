@@ -1,7 +1,9 @@
 *.nfs*
 work/
 results*/
+result_*/
 .nextflow*
 report*
 trace*
+pipeline_info/
 .ipynb_checkpoints
