@@ -43,11 +43,13 @@ params.refs = "/users/cn/egarriga/datasets/homfam/refs/*.ref"
 //params.trees ="/home/edgar/CBCRG/nf_homoplasty/results_trees"
 
 // which tree methods to run if `trees` == `false`
-params.tree_method = "dpparttreednd0"
-//codnd,dpparttreednd1,dpparttreednd2,dpparttreednd2size,fastaparttreednd,fftns1dnd,fftns1dndmem,fftns2dnd,fftns2dndmem,mafftdnd,parttreednd0,parttreednd1,parttreednd2,parttreednd2size
+params.tree_method = "famsaUpgma,famsaSL,famsaParttreeSL,famsaParttreeUpgma" 
+//FAMSA,CLUSTALO,MAFFT_PARTTREE,dpparttreednd0
+//codnd,dpparttreednd0,dpparttreednd1,dpparttreednd2,dpparttreednd2size,fastaparttreednd,fftns1dnd,fftns1dndmem,fftns2dnd,fftns2dndmem,mafftdnd,parttreednd0,parttreednd1,parttreednd2,parttreednd2size
 
 // which alignment methods to run
-params.align_method = "FAMSA" //CLUSTALO,MAFFT-FFTNS1,MAFFT-SPARSECORE,UPP,MAFFT-GINSI"
+params.align_method = "CLUSTALO"//"CLUSTALO,MAFFT-FFTNS1,FAMSA" 
+//CLUSTALO,MAFFT-FFTNS1,MAFFT-SPARSECORE,UPP,MAFFT-GINSI"
 
 // generate regressive alignments ?
 params.regressive_align = true
@@ -63,7 +65,7 @@ params.homoplasy = true
 params.metrics = true
 
 // bucket sizes for regressive algorithm
-params.buckets= '1000'
+params.buckets= '1000,5000,10000,20000'
 
 // output directory
 params.outdir = "$baseDir/results"
@@ -267,19 +269,19 @@ process metrics{
     script:
     """    
     ## realtime > Task execution time i.e. delta between completion and start timestamp i.e. compute wall-time
-    awk -F = '{ if (\$1=="") print \$2}' ${metricsFile} > ${id}.${mode}.${bucket_size}.${align_method}.with.${tree_method}.tree.realtime
+    awk -F = '{ if (\$1=="realtime") print \$2}' ${metricsFile} > ${id}.${mode}.${bucket_size}.${align_method}.with.${tree_method}.tree.realtime
 
     ## rss > Real memory (resident set) size of the process
     awk -F = '{ if (\$1=="rss") print \$2}' ${metricsFile}> ${id}.${mode}.${bucket_size}.${align_method}.with.${tree_method}.tree.rss
 
     ## peakRss > Peak of real memory
-    awk -F = '{ if (\$1=="peakRss") print \$2}' ${metricsFile} > ${id}.${mode}.${bucket_size}.${align_method}.with.${tree_method}.tree.peakRss
+    awk -F = '{ if (\$1=="peak_rss") print \$2}' ${metricsFile} > ${id}.${mode}.${bucket_size}.${align_method}.with.${tree_method}.tree.peakRss
 
     ## vmem > Virtual memory size of the process
     awk -F = '{ if (\$1=="vmem") print \$2}' ${metricsFile} > ${id}.${mode}.${bucket_size}.${align_method}.with.${tree_method}.tree.vmem
 
     ## peakVmem > Peak of virtual memory
-    awk -F = '{ if (\$1=="peakVmem") print \$2}' ${metricsFile} > ${id}.${mode}.${bucket_size}.${align_method}.with.${tree_method}.tree.peakVmem
+    awk -F = '{ if (\$1=="peak_vmem") print \$2}' ${metricsFile} > ${id}.${mode}.${bucket_size}.${align_method}.with.${tree_method}.tree.peakVmem
 
     mv ${metricsFile} ${id}.${mode}.${bucket_size}.${align_method}.with.${tree_method}.tree.metrics
     """
