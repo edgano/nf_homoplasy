@@ -132,6 +132,7 @@ RUN git clone http://github.com/smirarab/sepp.git && \
 # install FAMSA
 RUN git clone https://github.com/refresh-bio/FAMSA.git && \
   cd FAMSA && \ 
+  git checkout 4e596ad9f1e6d079d7b228efd7d1b92a95c41384 && \
   sed -i 's/all: famsa famsa-gpu/all: famsa/' makefile && \
   sed -i 's/NO_AVX = false/NO_AVX = true/' makefile && \
   sed -i 's/NO_AVX2 = false/NO_AVX2 = true/' makefile && \
