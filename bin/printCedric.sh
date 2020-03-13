@@ -37,59 +37,6 @@ declare -a bucket=(1000) #(1000 3000 5000 10000 20000)
 ##############
 declare -a flavour="reg_align" #"prog_align"  #"reg_align"  
 
-printf "\t\t########################\n"
-printf "\t\t######### TC ###########\n"
-printf "\t\t########################\n"
-
-#####
-###   ALIG |  CO  |  CO  |  CO  |  CO  |
-###   TREE | mBed | mBed |  PT  |  PT  |
-###   NSeq | 1000 | 2000 | 1000 | 2000 |
-#####
-
-## print 1st line -> ALIGN
-printf "ALIG;"
-for x in ${aligner[@]} 
-do
-  for y in ${tree[@]}
-  do
-    for z in ${bucket[@]}
-    do
-      printf ${x}";"
-    done
-  done
-done
-printf "\n"
-
-#print 2nd line -> TREE
-printf "TREE;"
-for x in ${aligner[@]}
-do
-  for y in ${tree[@]}
-  do
-    for z in ${bucket[@]}
-    do
-      printf ${y}";"
-    done
-  done
-done
-printf "\n"
-
-##print 3r line -> nSeq
-printf "nSeq;"
-for x in ${aligner[@]}
-do
-  for y in ${tree[@]}
-  do
-    for z in ${bucket[@]}
-    do
-      printf ${z}";"
-    done
-  done
-done
-printf "\n\n"
-
-
 for family in ${all[@]} ## loop for all families
 do
         for mode in ${flavour[@]} ## PROG - REG
@@ -108,9 +55,10 @@ do
                                         ./homoplasy/${family}.${flavour}.${nSeq}.${align_method}.with.${tree_method}.tree.len \
                                         ./homoplasy/${family}.${flavour}.${nSeq}.${align_method}.with.${tree_method}.tree.ngap \
                                         ./homoplasy/${family}.${flavour}.${nSeq}.${align_method}.with.${tree_method}.tree.ngap2 \
-                                        | tr '\t' ';'| tr '\n' ';'| tr -d "[:space:]"     
-                                done 
-                                printf "\n"            
+                                        | tr '\t' ';'| tr '\n' ';'| tr -d "[:space:]"   
+                                        
+                                        printf "\n"  
+                                done        
                         done 
                 done 
         done 
