@@ -32,18 +32,21 @@
  */
 
 // input sequences to align in fasta format
-params.seqs ="/users/cn/egarriga/datasets/homfam/combinedSeqs/seatoxin.fa"
+params.seqs ="${baseDir}/test/*.fa"
+//"/users/cn/egarriga/datasets/homfam/combinedSeqs/*.fa"
 //params.seqs ="${baseDir}/test/*.fa"
 
 // input reference sequences aligned in
-params.refs = "/users/cn/egarriga/datasets/homfam/refs/*.ref"
+params.refs ="${baseDir}/test/*.ref"
+//"/users/cn/egarriga/datasets/homfam/refs/*.ref"
 //params.refs ="${baseDir}/test/*.ref"
 
 // input guide trees in Newick format. Or `false` to generate trees
 //params.trees ="/home/edgar/CBCRG/nf_homoplasty/results_trees"
 
 // which tree methods to run if `trees` == `false`
-params.tree_method = "famsaUpgma,famsaSL,famsaParttreeSL,famsaParttreeUpgma" 
+params.tree_method = "famsaParttreeSLretree"
+//"famsaUpgma,famsaSL,famsaParttreeSL,famsaParttreeUpgma" 
 //FAMSA,CLUSTALO,MAFFT_PARTTREE,dpparttreednd0
 //codnd,dpparttreednd0,dpparttreednd1,dpparttreednd2,dpparttreednd2size,fastaparttreednd,fftns1dnd,fftns1dndmem,fftns2dnd,fftns2dndmem,mafftdnd,parttreednd0,parttreednd1,parttreednd2,parttreednd2size
 
@@ -52,23 +55,23 @@ params.align_method = "CLUSTALO"//"CLUSTALO,MAFFT-FFTNS1,FAMSA"
 //CLUSTALO,MAFFT-FFTNS1,MAFFT-SPARSECORE,UPP,MAFFT-GINSI"
 
 // generate regressive alignments ?
-params.regressive_align = true
+params.regressive_align = false
 
 // create standard alignments ?
-params.progressive_align = true
+params.progressive_align = false
 
 // evaluate alignments ?
-params.evaluate = true
+params.evaluate = false
 
-params.homoplasy = true
+params.homoplasy = false
 
-params.metrics = true
+params.metrics = false
 
 // bucket sizes for regressive algorithm
 params.buckets= '1000,5000,10000,20000'
 
 // output directory
-params.outdir = "$baseDir/results"
+params.outdir = "$baseDir/resultsFAMSA_TREES"
 
 log.info """\
          H O M O P L A S Y   A n a l y s i s  ~  version 0.1"
