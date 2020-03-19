@@ -55,23 +55,23 @@ params.align_method = "CLUSTALO"//"CLUSTALO,MAFFT-FFTNS1,FAMSA"
 //CLUSTALO,MAFFT-FFTNS1,MAFFT-SPARSECORE,UPP,MAFFT-GINSI"
 
 // generate regressive alignments ?
-params.regressive_align = false
+params.regressive_align = true
 
 // create standard alignments ?
-params.progressive_align = false
+params.progressive_align = true
 
 // evaluate alignments ?
-params.evaluate = false
+params.evaluate = true
 
-params.homoplasy = false
+params.homoplasy = true
 
-params.metrics = false
+params.metrics = true
 
 // bucket sizes for regressive algorithm
-params.buckets= '1000,5000,10000,20000'
+params.buckets= '1000'
 
 // output directory
-params.outdir = "$baseDir/resultsFAMSA_TREES"
+params.outdir = "$baseDir/resultsHOMO"
 
 log.info """\
          H O M O P L A S Y   A n a l y s i s  ~  version 0.1"
@@ -338,8 +338,37 @@ progressiveOut
 refs
   .cross (all_alignments )
   .map { it -> [it[0][0], it[1][1], it[1][2], it[1][3], it[1][4], it[1][5], it[0][1]] }
-  .set { toEvaluate }
+  .into { toEvaluate; toEvaluate2}
 
+
+process esl{
+    tag "${id}.${align_method}.${tree_method}.${align_type}.${bucket_size}"
+    publishDir "${params.outdir}/esl", mode: 'copy', overwrite: true
+    label 'process_low'
+    container 'edgano/hmmer'
+
+    input:
+      set val(id), \
+          val(align_method), \
+          val(tree_method), \
+          val(align_type), \
+          val(bucket_size), \
+          file(test_alignment), \
+          file(ref_alignment) \
+          from toEvaluate2
+    output:
+      set file("*.easel_INFO"),file("*.avgLen"),file("*.avgId") into eslOut
+      
+     shell:
+     '''
+     esl-alistat !{test_alignment} > !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.easel_INFO
+     awk -F : '{ if (\$1=="Average length") print \$2}' !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.easel_INFO > !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.avgLen
+     awk -F : '{ if (\$1=="Average identity") print substr(\$2, 1, length(\$2)-1)}' !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.easel_INFO > !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.avgId
+
+     ## awk 'NR > 8 && $1 !~/\\// { sum+= $3 } END {print "SUM: "sum"\\nAVG: "sum/(NR-9)}' !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.easel_INFO > !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.easel_AVG
+     ## the first && is to skip first lines and the last one. The AVG is done -8 all the time execpt for the END print to "erase" the last "//" too.
+     '''
+}
 process evaluation {
     tag "${id}.${align_method}.${tree_method}.${align_type}.${bucket_size}"
     publishDir "${params.outdir}/individual_scores", mode: 'copy', overwrite: true
