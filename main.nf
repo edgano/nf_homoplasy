@@ -331,7 +331,65 @@ process homoplasy{
     """
 }
 
-progressiveOut
+process gapsProg{
+  tag "${id}"
+  publishDir "${params.outdir}/homoplasy", pattern: "*.{totGap,numSeq,alnLen}", mode: 'copy', overwrite: true
+  container 'edgano/base:latest'
+  input:
+        set val(id), \
+        val(aln_method), \
+        val(tree_method), \
+        val(flavour), \
+        val(bucket_size), \
+        file(aln) \
+        from progressiveOut
+  output:
+        set val(id), \
+        val(aln_method), \
+        val(tree_method), \
+        val(flavour), \
+        val(bucket_size), \
+        file(aln) \
+        into progressiveOut2
+
+        set val(id), file("*.totGap"), file("*.numSeq"), file("*.alnLen") into gapsOut
+
+  when:
+    params.progressive_align
+
+  script:
+    """
+#!/usr/bin/env python
+from Bio import SeqIO
+from decimal import *
+import os
+gap = '-'
+globalGap = 0
+avgGap = 0
+auxGap = 0
+totGapName= "${id}.${flavour}.${bucket_size}.${aln_method}.with.${tree_method}.tree.totGap"
+numbSeqName= "${id}.${flavour}.${bucket_size}.${aln_method}.with.${tree_method}.tree.numSeq"
+alnLenName= "${id}.${flavour}.${bucket_size}.${aln_method}.with.${tree_method}.tree.alnLen"
+totGapFile= open(totGapName,"w+")
+numSeqFile= open(numbSeqName,"w+")
+alnLenFile= open(alnLenName,"w+")
+record = list(SeqIO.parse("${aln}", "fasta"))
+for sequence in record:
+    ## print(sequence.seq)
+    auxGap = sequence.seq.count(gap)
+    globalGap += auxGap
+avgGap = Decimal(globalGap) / Decimal(len(record))
+print "NumSeq: ",len(record)," GlobalGap: ",globalGap," AVG_Gap:",round(avgGap,3)
+totGapFile.write(str(globalGap))
+alnLenFile.write(str(len(record[0])))
+numSeqFile.write(str(len(record)))
+totGapFile.close()
+alnLenFile.close()
+numSeqFile.close()
+"""
+}
+
+progressiveOut2
   .mix ( regressiveOut )
   .set { all_alignments }
 
