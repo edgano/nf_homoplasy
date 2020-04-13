@@ -45,7 +45,7 @@ params.refs ="${baseDir}/test/*.ref"
 //params.trees ="/home/edgar/CBCRG/nf_homoplasty/results_trees"
 
 // which tree methods to run if `trees` == `false`
-params.tree_method = "famsaParttreeSLretree"
+params.tree_method = "codnd"
 //"famsaUpgma,famsaSL,famsaParttreeSL,famsaParttreeUpgma" 
 //FAMSA,CLUSTALO,MAFFT_PARTTREE,dpparttreednd0
 //codnd,dpparttreednd0,dpparttreednd1,dpparttreednd2,dpparttreednd2size,fastaparttreednd,fftns1dnd,fftns1dndmem,fftns2dnd,fftns2dndmem,mafftdnd,parttreednd0,parttreednd1,parttreednd2,parttreednd2size
@@ -362,8 +362,8 @@ process esl{
      shell:
      '''
      esl-alistat !{test_alignment} > !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.easel_INFO
-     awk -F : '{ if (\$1=="Average length") print \$2}' !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.easel_INFO > !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.avgLen
-     awk -F : '{ if (\$1=="Average identity") print substr(\$2, 1, length(\$2)-1)}' !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.easel_INFO > !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.avgId
+     awk -F : '{ if (\$1=="Average length") print \$2}' !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.easel_INFO | sed 's/ //g' > !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.avgLen 
+     awk -F : '{ if (\$1=="Average identity") print substr(\$2, 1, length(\$2)-1)}' !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.easel_INFO | sed 's/ //g' > !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.avgId 
 
      ## awk 'NR > 8 && $1 !~/\\// { sum+= $3 } END {print "SUM: "sum"\\nAVG: "sum/(NR-9)}' !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.easel_INFO > !{id}.!{align_type}.!{bucket_size}.!{align_method}.with.!{tree_method}.tree.easel_AVG
      ## the first && is to skip first lines and the last one. The AVG is done -8 all the time execpt for the END print to "erase" the last "//" too.
