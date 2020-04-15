@@ -1,4 +1,4 @@
-export DUMP_ALN_BUCKETS=1
+#export DUMP_ALN_BUCKETS=1
 t_coffee -reg -reg_method upp_msa \
          -reg_tree ${guide_tree} \
          -seq ${seqs} \

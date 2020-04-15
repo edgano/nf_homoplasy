@@ -51,27 +51,27 @@ params.tree_method = "codnd"
 //codnd,dpparttreednd0,dpparttreednd1,dpparttreednd2,dpparttreednd2size,fastaparttreednd,fftns1dnd,fftns1dndmem,fftns2dnd,fftns2dndmem,mafftdnd,parttreednd0,parttreednd1,parttreednd2,parttreednd2size
 
 // which alignment methods to run
-params.align_method = "CLUSTALO"//"CLUSTALO,MAFFT-FFTNS1,FAMSA" 
+params.align_method = "DYNAMICX"//"CLUSTALO,MAFFT-FFTNS1,FAMSA" 
 //CLUSTALO,MAFFT-FFTNS1,MAFFT-SPARSECORE,UPP,MAFFT-GINSI"
 
 // generate regressive alignments ?
 params.regressive_align = true
 
 // create standard alignments ?
-params.progressive_align = true
+params.progressive_align = false
 
 // evaluate alignments ?
 params.evaluate = true
 
-params.homoplasy = true
+params.homoplasy = false
 
-params.metrics = true
+params.metrics = false
 
 // bucket sizes for regressive algorithm
 params.buckets= '1000'
 
 // output directory
-params.outdir = "$baseDir/resultsHOMO"
+params.outdir = "$baseDir/resultsDyn"
 
 log.info """\
          H O M O P L A S Y   A n a l y s i s  ~  version 0.1"
@@ -430,6 +430,7 @@ process esl{
 process evaluation {
     tag "${id}.${align_method}.${tree_method}.${align_type}.${bucket_size}"
     publishDir "${params.outdir}/individual_scores", mode: 'copy', overwrite: true
+    container 'edgano/homoplasy:latest'
     label 'process_low'
 
     input:

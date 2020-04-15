@@ -132,7 +132,7 @@ RUN git clone http://github.com/smirarab/sepp.git && \
 # install FAMSA
 RUN git clone https://github.com/refresh-bio/FAMSA.git && \
   cd FAMSA && \ 
-  git checkout 26e3a7bd36095d481680af88956fe416f7aff400 && \
+  git checkout 6a23ac2564efd7bd9dc68c0ba21c7920378d2a28 && \
   sed -i 's/all: famsa famsa-gpu/all: famsa/' makefile && \
   sed -i 's/NO_AVX = false/NO_AVX = true/' makefile && \
   sed -i 's/NO_AVX2 = false/NO_AVX2 = true/' makefile && \
@@ -141,11 +141,14 @@ RUN git clone https://github.com/refresh-bio/FAMSA.git && \
   cp famsa /bin/.
   
 # Install TCOFFEE
-RUN git clone https://github.com/edgano/tcoffee.git tcoffee && \
+RUN git clone https://github.com/cbcrg/tcoffee.git tcoffee && \
     cd tcoffee && \
-    git checkout 6149f3a66143ad5fcba1a9427c0c5811ebd1eaca && \
+    git checkout 639542c84fc0912240a2a7333102ed54eba95b5a && \
+    sed -i 's/legacy_blast.pl blastpgp --path $path -d $cl_db -i $infile -o $outfile/legacy_blast.pl blastpgp -i $infile -d $cl_db --path \/bin -o $outfile/' lib/perl/lib/scripts/tc_generic_method.pl && \
     cd t_coffee/src && \
     make t_coffee && \
+    cp t_coffee *.pl /bin/. && \
+    mkdir /tmp/cache && mkdir /tmp/lock && \
     cp t_coffee /bin/.
 
 ENV FASTA_4_MAFFT /bin/fasta35
@@ -155,3 +158,26 @@ ENV LOCKDIR_4_TCOFFEE ${TMPDIR:-/tmp}/.tcoffee/lock
 ENV TMP_4_TCOFFEE ${TMPDIR:-/tmp}/.tcoffee/tmp
 ENV HOME_4_TCOFFEE ~/.tcoffee/
 ENV HOME /
+#configure perl5 to BLAST templates
+ENV PERL5LIB="/usr/share/perl5:/tcoffee/perl/lib/perl5"  
+
+
+# Install BLAST+
+RUN wget https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.10.0+-x64-linux.tar.gz && \
+    tar xvf ncbi-blast-2.10.0+-x64-linux.tar.gz && \
+    cp ncbi-blast-2.10.0+/bin/* /usr/bin/.
+
+# export PERL5LIB="/usr/share/perl5"
+# cp /tcoffee/t_coffee/src/*.pl /bin 
+# t_coffee -seq=/opt/sh3.fasta -protein_db=/opt/uniref50.fasta -blast_server=LOCAL -mode=psicoffee
+
+# ./bin/tc_generic_method.pl -infile=/opt/sh3.fasta -mode=profile_template -database=/opt/uniref50.fasta -method=blastp -outfile=test.fa -server=LOCAL
+# legacy_blast.pl blastpgp --path /bin -d docker/bin/database/uniref50.fasta -i docker/bin/data/sh3.fasta -o sh3.out -m7 -j1
+# legacy_blast.pl blastpgp -i /opt/sh3.fasta -d /opt/uniref50.fasta --path /bin -o outfile.out -m7 -j1
+
+
+# docker run -v /Users/edgargarriga/CBCRG/bin:/db -ti edgano/homoplasy:dev
+# t_coffee -seq=/db/sh3.fasta -protein_db=/db/uniref50.fasta -blast_server=LOCAL -mode=psicoffee
+
+# t_coffee -seq /db/sh3.fasta -mode psicoffee -blast_server LOCAL -protein_db /db/uniref50.fasta -psitrim 40
+# t_coffee -reg -reg_nseq 50 -reg_dynamic 1000000 -reg_method dynamic_msa -seq /db/sh3.fasta -blast_server LOCAL -protein_db /db/uniref50.fasta 
