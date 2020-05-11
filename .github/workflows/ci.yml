@@ -11,14 +11,14 @@ jobs:
      runs-on: ubuntu-latest
      strategy:
        matrix:
-         parameters: [--regressive_align=true --progressive_align=false --dynamic_align=false --evaluate=false --align_method=CLUSTALO --tree_method=codnd]
+         parameters: [--regressive_align=true --progressive_align=false --dynamic_align=false --evaluate=false --align_method=CLUSTALO,FAMSA --tree_method=codnd,parttreednd0]
      steps:
        - uses: actions/checkout@v2
        - name: Install Nextflow
          run: |
            wget -qO- get.nextflow.io | bash
            sudo mv nextflow /usr/local/bin/
-       - name: Run pipeline with minimal data to check regressive ClustalO with mBed trees
+       - name: Run pipeline with minimal data to check regressive alignments
          run: |
            nextflow run ${GITHUB_WORKSPACE} -profile test,docker ${{ matrix.parameters }}
            
@@ -29,14 +29,14 @@ jobs:
      runs-on: ubuntu-latest
      strategy:
        matrix:
-         parameters: [--regressive_align=false --progressive_align=true --dynamic_align=false --evaluate=false --align_method=CLUSTALO --tree_method=codnd]
+         parameters: [--regressive_align=false --progressive_align=true --dynamic_align=false --evaluate=false --align_method=CLUSTALO,FAMSA --tree_method=codnd,parttreednd0]
      steps:
        - uses: actions/checkout@v2
        - name: Install Nextflow
          run: |
            wget -qO- get.nextflow.io | bash
            sudo mv nextflow /usr/local/bin/
-       - name: Run pipeline with minimal data to check progressive ClustalO with mBed trees
+       - name: Run pipeline with minimal data to check progressive alignments
          run: |
            nextflow run ${GITHUB_WORKSPACE} -profile test,docker ${{ matrix.parameters }}
 
