@@ -30,7 +30,7 @@ jobs:
      runs-on: ubuntu-latest
      strategy:
        matrix:
-         parameters: [--align_method=CLUSTALO --tree_method=CLUSTALO]
+         parameters: [--align_method=CLUSTALO --tree_method=codnd]
      steps:
        - uses: actions/checkout@v2
        - name: Install Nextflow
