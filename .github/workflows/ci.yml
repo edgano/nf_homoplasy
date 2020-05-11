@@ -4,25 +4,6 @@ name: nf_regressive CI
 on: [push, pull_request]
 
 jobs:
-  test:
-    env:
-      NXF_VER: ${{ matrix.nxf_ver }}
-      NXF_ANSI_LOG: false
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # Nextflow versions: check pipeline minimum and current latest
-        nxf_ver: ['19.10.0', '']
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install Nextflow
-        run: |
-          wget -qO- get.nextflow.io | bash
-          sudo mv nextflow /usr/local/bin/
-      - name: Run pipeline with test data
-        run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test,docker
- 
   test_regressive:
      env:
        NXF_VER: '19.10.0'
@@ -30,7 +11,7 @@ jobs:
      runs-on: ubuntu-latest
      strategy:
        matrix:
-         parameters: [--align_method=CLUSTALO --tree_method=codnd]
+         parameters: [--regressive_align=true --progressive_align=false --dynamic_align=false --evaluate=false --align_method=CLUSTALO --tree_method=codnd]
      steps:
        - uses: actions/checkout@v2
        - name: Install Nextflow
@@ -40,3 +21,22 @@ jobs:
        - name: Run pipeline with minimal data to check regressive ClustalO with mBed trees
          run: |
            nextflow run ${GITHUB_WORKSPACE} -profile test,docker ${{ matrix.parameters }}
+           
+  test_progressive:
+     env:
+       NXF_VER: '19.10.0'
+       NXF_ANSI_LOG: false
+     runs-on: ubuntu-latest
+     strategy:
+       matrix:
+         parameters: [--regressive_align=false --progressive_align=true --dynamic_align=false --evaluate=false --align_method=CLUSTALO --tree_method=codnd]
+     steps:
+       - uses: actions/checkout@v2
+       - name: Install Nextflow
+         run: |
+           wget -qO- get.nextflow.io | bash
+           sudo mv nextflow /usr/local/bin/
+       - name: Run pipeline with minimal data to check progressive ClustalO with mBed trees
+         run: |
+           nextflow run ${GITHUB_WORKSPACE} -profile test,docker ${{ matrix.parameters }}
+
